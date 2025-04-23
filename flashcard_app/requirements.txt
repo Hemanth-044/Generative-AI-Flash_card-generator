@@ -1,0 +1,5 @@
+flask
+PyPDF2
+transformers
+torch
+huggingface_hub
