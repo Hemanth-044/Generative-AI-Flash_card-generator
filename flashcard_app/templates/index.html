@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Flashcard Creator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Flashcard Creator</h1>
+        <form id="upload-form">
+            <input type="file" name="pdf" accept="application/pdf" required />
+            <label for="num_cards">Number of cards per chunk (1-10):</label>
+            <input type="number" id="num_cards" name="num_cards" min="1" max="10" value="5" required />
+            <button type="submit">Upload PDF</button>
+        </form>
+        <div id="flashcards"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const flashcardsDiv = document.getElementById('flashcards');
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            flashcardsDiv.innerHTML = "Generating flashcards...";
+            const res = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            if (data.flashcards) {
+                flashcardsDiv.innerHTML = '';
+                for (const [chunk, cards] of Object.entries(data.flashcards)) {
+                    flashcardsDiv.innerHTML += `<h3>Flashcards from ${chunk}</h3>`;
+                    cards.forEach(card => {
+                        flashcardsDiv.innerHTML += `<div class="card">${card}</div>`;
+                    });
+                }
+            } else {
+                flashcardsDiv.innerHTML = "Error generating flashcards.";
+            }
+        };
+    </script>
+</body>
+</html>
